@@ -10,11 +10,20 @@ export interface JwtConfig {
   validity: number;
 }
 
+export interface EmailConfig {
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+}
+
 @Injectable()
 export class ConfigurationService {
   private dbConfig: DatabaseConfig;
   private jwtConfig: JwtConfig;
   private apiKey: string;
+  private emailConfig: EmailConfig;
+  private openAiKey: string;
 
   constructor(private configService: ConfigService) {
     this.dbConfig = {
@@ -27,6 +36,15 @@ export class ConfigurationService {
     };
 
     this.apiKey = configService.get<string>('API_KEY')!;
+
+    this.emailConfig = {
+      host: configService.get<string>('EMAIL_HOST')!,
+      port: configService.get<number>('EMAIL_PORT')!,
+      user: configService.get<string>('EMAIL_USER')!,
+      password: configService.get<string>('EMAIL_PASSWORD')!,
+    };
+
+    this.openAiKey = configService.get<string>('OPEN_API_KEY')!;
   }
 
   public getDbConfig() {
@@ -39,5 +57,13 @@ export class ConfigurationService {
 
   public getApiKey() {
     return this.apiKey;
+  }
+
+  public getEmailConfig() {
+    return this.emailConfig;
+  }
+
+  public getOpenAiKey() {
+    return this.openAiKey;
   }
 }

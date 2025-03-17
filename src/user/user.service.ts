@@ -10,16 +10,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { AuthService } from './../auth/auth.service';
-import { GetWeatherDataDTO } from './dto/get-weather-data.dto';
-import { ConfigurationService } from 'src/configuration/configuration.service';
-import axios from 'axios';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User') private userModel: Model<User>,
     private authService: AuthService,
-    private configurationService: ConfigurationService,
   ) {}
 
   async userSignIn(userSignInDTO: UserSignInDTO) {
@@ -76,39 +72,27 @@ export class UserService {
     }
   }
 
-  async getWeatherData(getWeatherDataDTO: GetWeatherDataDTO) {
-    const { location, countryCode, state } = getWeatherDataDTO;
-    const apiKey = this.configurationService.getApiKey();
-    const { data } = await axios.get(
-      `http://api.openweathermap.org/geo/1.0/direct?q=${location},${countryCode}&limit=${10}&appid=${apiKey}`,
-    );
-
-    if (data.length === 0) {
-      throw new NotFoundException("Couldn't found location", {
+  async getAllUsers() {
+    const users = await this.userModel.find();
+    if (users.length > 0) {
+      return users;
+    } else {
+      throw new NotFoundException('No Users exist.', {
         cause: new Error(),
-        description: "Couldn't found location",
+        description: "Users don't exist",
       });
     }
+  }
 
-    if (data.length === 1) {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${data[0].lat}&lon=${data[0].lon}&appid=${apiKey}`,
-      );
-      return response.data;
-    }
-
-    if (data.length > 1) {
-      const exactLocation = data.find((loc) => {
-        if (loc.state === state) {
-          return loc;
-        }
+  async getUserByUsername(username: string) {
+    const users = await this.userModel.find({ username: username });
+    if (users.length > 0) {
+      return users[0];
+    } else {
+      throw new NotFoundException('No Users exist.', {
+        cause: new Error(),
+        description: "Users don't exist",
       });
-
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${exactLocation.lat}&lon=${exactLocation.lon}&appid=${apiKey}`,
-      );
-
-      return response.data;
     }
   }
 }

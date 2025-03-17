@@ -10,9 +10,10 @@ export class GetWeatherDataDTO {
   countryCode: string;
 
   @IsString()
+  @IsNotEmpty()
   state: string;
 
   @IsString()
   @IsNotEmpty()
-  date: string;
+  username: string;
 }
