@@ -44,8 +44,6 @@ export class AuthGuard implements CanActivate {
         description: 'Unauthorized access2',
       });
     }
-
-    return false;
   }
 
   private extractTokenFromHeader(request): string | null {
