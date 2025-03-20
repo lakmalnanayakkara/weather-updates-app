@@ -61,8 +61,6 @@ export class WeatherInfoService {
       username: username,
     });
 
-    console.log('weatherInfo', weatherInfo);
-
     const apiKey = this.configurationService.getApiKey();
 
     try {
@@ -79,7 +77,7 @@ export class WeatherInfoService {
         });
       }
 
-      if (data.length === 1) {
+      if (data.length > 0) {
         const response = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather?lat=${data[0].lat}&lon=${data[0].lon}&appid=${apiKey}`,
         );
@@ -90,8 +88,6 @@ export class WeatherInfoService {
               return detail.location === location ? detail : '';
             },
           );
-
-          console.log('');
 
           if (existWeatherEntry) {
             const updatedDetails = await this.weatherDetailsModel.updateOne(
